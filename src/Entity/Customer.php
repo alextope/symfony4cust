@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -13,20 +15,13 @@ use Doctrine\ORM\Mapping as ORM;
 class Customer
 {
     /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
-    private $id;
-
-    /**
-     * @var \Ramsey\Uuid\UuidInterface
-     *
+     * @var Uuid
+     * @ORM\Id
      * @ORM\Column(type="uuid", unique=true)
      * @ORM\GeneratedValue(strategy="CUSTOM")
      * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
      */
-    private $uuid;
+    private $id;
 
     /**
      * @ORM\Column(type="string", length=100)
@@ -46,7 +41,7 @@ class Customer
     /**
      * @ORM\Column(type="string", length=10)
      */
-    private $status;
+    private $status = 'new';
 
     /**
      * @ORM\Column(type="datetime")
@@ -64,7 +59,7 @@ class Customer
     private $deletedAt;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Product", mappedBy="customer")
+     * @ORM\OneToMany(targetEntity="App\Entity\Product", mappedBy="customer", orphanRemoval=true)
      */
     private $products;
 
@@ -73,19 +68,22 @@ class Customer
         $this->products = new ArrayCollection();
     }
 
-    public function getId(): ?int
+    public static function loadValidatorMetadata(ClassMetadata $metadata)
+    {
+        $metadata->addPropertyConstraint('status', new Assert\Choice([
+            'choices' => ['new', 'pending', 'in review', 'approved', 'inactive', 'deleted'],
+            'message' => 'Ivalid status.',
+        ]));
+    }
+
+    public function getId(): ?string
     {
         return $this->id;
     }
 
-    public function getUuid(): ?string
+    public function setId(string $id): self
     {
-        return $this->uuid;
-    }
-
-    public function setUuid(string $uuid): self
-    {
-        $this->uuid = $uuid;
+        $this->id = $id;
 
         return $this;
     }

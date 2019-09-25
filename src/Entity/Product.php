@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -30,7 +32,7 @@ class Product
     /**
      * @ORM\Column(type="string", length=10)
      */
-    private $status;
+    private $status = 'new';
 
     /**
      * @ORM\Column(type="datetime")
@@ -49,9 +51,17 @@ class Product
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Customer", inversedBy="products")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $customer;
+
+    public static function loadValidatorMetadata(ClassMetadata $metadata)
+    {
+        $metadata->addPropertyConstraint('status', new Assert\Choice([
+            'choices' => ['new', 'pending', 'in review', 'approved', 'inactive', 'deleted'],
+            'message' => 'Ivalid status.',
+        ]));
+    }
 
     public function getId(): ?int
     {
