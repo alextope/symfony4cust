@@ -24,25 +24,6 @@ class ProductType extends AbstractType
         ->add('customer')
         ->add('save', SubmitType::class)
         ;
-        /*$builder
-            ->add('issn')
-            ->add('name')
-            ->add('status', null, [
-                'required'   => false,
-                'empty_data' => 'new',
-                ]
-              )
-            ->add('createdAt', DateTimeType::class, array(
-                'widget' => 'single_text',
-                'time_widget' => 'choice',
-                'required' => false, 
-            )
-          )
-            ->add('updatedAt')
-        //    ->add('deletedAt')
-            ->add('customer')
-            ->add('save', SubmitType::class)
-        ;*/
     }
 
     public function configureOptions(OptionsResolver $resolver)

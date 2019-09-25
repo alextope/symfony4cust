@@ -35,6 +35,11 @@ class CustomerController extends FOSRestController
     {
         $repository = $this->getDoctrine()->getRepository(Customer::class);
         $customer = $repository->findById($id);
+
+        if(!$customer){
+          throw new NotFoundHttpException('The customer does not exist');      
+        }
+        
         return $this->handleView($this->view($customer));
     }
 
@@ -70,6 +75,11 @@ class CustomerController extends FOSRestController
       public function put(Request $request, $id)
       {
           $existingCustomer = $this->getDoctrine()->getRepository(Customer::class)->find($id);
+
+          if(!$existingCustomer){
+            throw new NotFoundHttpException('The customer does not exist');      
+          }
+
           $existingCustomer->setUpdatedAt(new \DateTime());
           $form = $this->createForm(CustomerType::class, $existingCustomer);
 
@@ -77,7 +87,7 @@ class CustomerController extends FOSRestController
 
           if ($form->isValid()) {
             $this->getDoctrine()->getManager()->flush();
-            return $this->handleView($this->view(['status' => 'ok'], Response::HTTP_CREATED));
+            return $this->handleView($this->view(['status' => 'ok'], Response::HTTP_OK));
           }
 
           return $this->handleView($this->view($form->getErrors()));
@@ -93,6 +103,11 @@ class CustomerController extends FOSRestController
       {
           $data = json_decode($request->getContent(), true);
           $existingCustomer = $this->getDoctrine()->getRepository(Customer::class)->find($id);
+
+          if(!$existingCustomer){
+            throw new NotFoundHttpException('The customer does not exist');      
+          }
+
           $existingCustomer->setUpdatedAt(new \DateTime());
           $form = $this->createForm(CustomerType::class, $existingCustomer);
 
@@ -104,7 +119,7 @@ class CustomerController extends FOSRestController
 
           $this->getDoctrine()->getManager()->flush();
 
-          return $this->handleView($this->view(['status' => 'ok'], Response::HTTP_CREATED));
+          return $this->handleView($this->view(['status' => 'ok'], Response::HTTP_OK));
     }
 
     /**
@@ -117,9 +132,13 @@ class CustomerController extends FOSRestController
     {
         $customer = $this->getDoctrine()->getRepository(Customer::class)->find($id);
 
+        if(!$customer){
+          throw new NotFoundHttpException('The customer does not exist');      
+        }
+
         $this->getDoctrine()->getManager()->remove($customer);
         $this->getDoctrine()->getManager()->flush();
 
-        return $this->view(null, Response::HTTP_NO_CONTENT);
+        return $this->view(null, Response::HTTP_OK);
     }
 }
